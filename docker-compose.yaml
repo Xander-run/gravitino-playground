@@ -54,7 +54,8 @@ services:
       start_period: 120s
 
   gravitino:
-    image: apache/gravitino:0.8.0-incubating
+    # local built image
+    image: namelessnoob/gravitino:0.8.0
     entrypoint: /bin/bash /tmp/gravitino/init.sh
     ports:
       - "8090:8090"
@@ -133,7 +134,7 @@ services:
     volumes:
       - ./init/mysql:/docker-entrypoint-initdb.d/
       - ./healthcheck:/tmp/healthcheck
-    command: 
+    command:
       --default-authentication-plugin=mysql_native_password
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_general_ci
@@ -150,6 +151,9 @@ services:
     image: spark:3.4.1-scala2.12-java11-ubuntu
     container_name: playground-spark
     entrypoint: /bin/bash /tmp/spark/init.sh
+    depends_on:
+      gravitino:
+        condition: service_healthy
     environment:
       - HADOOP_USER_NAME=root
     ports:
